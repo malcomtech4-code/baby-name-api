@@ -20,13 +20,20 @@ const openai = new OpenAI({
 
 // POST route
 app.post('/', async (req, res) => {
-  const { gender, country } = req.body;
+  let { gender, country } = req.body;
 
   if (!gender || !country) {
     return res.status(400).json({ error: 'Missing gender or country' });
   }
 
+  // Ensure country is always an array
+  if (!Array.isArray(country)) {
+    country = [country];
+  }
+
   try {
+    const countryList = country.join(', ');
+
     const prompt = `
 You are a baby name expert.
 
@@ -34,7 +41,7 @@ Generate exactly 20 unique baby names based on the criteria below.
 
 Context:
 - The baby’s gender is ${gender} (boy, girl, or neutral)
-- The baby will live in ${country}, so names should work well in that cultural context
+- The baby will live in the following countries: ${countryList}, so names should work well in those cultural contexts
 - Names should be familiar, pronounceable, and appropriate for modern use
 - Avoid joke names, novelty spellings, or near-duplicates (e.g., Aiden/Ayden)
 
